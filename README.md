@@ -119,14 +119,21 @@ src/
 ## ⚙️ Setup and Installation
 
 1. Clone the Repository
+
+```
 git clone (https://github.com/nithishkumar86/crewai_customer_ticket_support_system)
 cd crewai_customer_ticket_support_system
 
+```
+
 2. Create Virtual Environment
+```
 uv init
 uv venv
 .venv\Scripts\activate      # Windows
 source .venv/bin/activate   # Mac/Linux
+
+```
 
 4. Install Dependencies
 uv add -r requirements.txt
@@ -173,4 +180,5 @@ function copyAll() {
 
 </body>
 </html>
+
 
