@@ -1,0 +1,9 @@
+crewai
+crewai-tools
+langchain-groq
+pydantic
+python-dotenv
+litellm
+fastapi
+streamlit
+uvicorn

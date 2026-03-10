@@ -1,0 +1,111 @@
+classify_ticket_task:
+  description: >
+    You will receive a raw customer support ticket containing the customer's 
+    name, email, and their issue description.
+
+    Customer Name  : {customer_name}
+    Customer Email : {customer_email}
+    Issue          : {issue}
+
+    Your job is to carefully read and understand the ticket and classify it 
+    into exactly one of the following categories:
+    - Billing   → payment failures, refunds, invoice, subscription, charges
+    - Technical → bugs, errors, crashes, login issues, performance problems
+    - Shipping  → delivery delays, lost packages, wrong items, tracking issues
+    - Account   → password reset, profile updates, access issues, account locked
+    - General   → feedback, feature requests, general inquiries
+
+    Rules you must strictly follow:
+    - Category must be exactly one of the 5 types listed above
+    - Confidence score must be between 0.5 and 1.0 — if you are not confident enough, re-analyze
+    - Issue summary must clearly describe the core problem in one concise sentence
+  expected_output: >
+    A structured JSON output with the following fields:
+    - category: one of "Billing", "Technical", "Shipping", "Account", "General"
+    - confidence_score: float between 0.5 and 1.0
+    - issue_summary: a clear one-sentence summary of the customer's core problem
+  agent: classifier_agent
+
+
+prioritize_ticket_task:
+  description: >
+    You will receive the classified ticket output from the previous task via context.
+    Your job is to evaluate the urgency and business impact of this ticket
+    and assign the correct priority level.
+
+    Priority levels and their criteria:
+    - Critical → system down, data loss, security breach, payment fraud
+    - High     → Billing issues, feature completely broken, multiple users affected
+    - Medium   → single user issue, workaround available, moderate impact
+    - Low      → general inquiry, feature request, minor inconvenience
+
+    Rules you must strictly follow:
+    - Priority level must be exactly one of: "Low", "Medium", "High", "Critical"
+    - Any Billing category ticket must be assigned "High" or "Critical" — never Low or Medium
+    - escalate_to_human must be True if priority is "Critical"
+    - Reason must clearly justify why this priority level was assigned in one concise sentence
+  expected_output: >
+    A structured JSON output with the following fields:
+    - priority_level: one of "Low", "Medium", "High", "Critical"
+    - escalate_to_human: true or false
+    - reason: a clear one-sentence justification for the assigned priority level
+  agent: priority_agent
+
+
+generate_solution_task:
+  description: >
+    You will receive the classified ticket and its priority level from previous 
+    tasks via context. Your job is to generate the most accurate, practical, 
+    and complete solution for the customer's issue.
+
+    Rules you must strictly follow:
+    - Provide a detailed step-by-step solution — minimum 50 words, no vague answers
+    - Resolution time must always be specified clearly (e.g. "2 hours", "24 hours", "instantly")
+    - If the issue requires monitoring after resolution, set needs_followup to True
+    - If escalate_to_human is True, solution must instruct to escalate to the relevant human team
+      with a clear handover message — do not attempt to auto-resolve Critical tickets alone
+    - Tailor the solution specifically to the category and issue — never give generic answers
+  expected_output: >
+    A structured JSON output with the following fields:
+    - suggested_solution: detailed step-by-step resolution of minimum 50 words
+    - resolution_time: estimated time to fully resolve the issue
+    - needs_followup: true if the issue requires monitoring or a follow-up check
+  agent: solution_agent
+
+
+draft_email_task:
+  description: >
+    You are drafting a professional support email to the customer.
+    
+    The customer raised the following issue:
+    Customer Name  : {customer_name}
+    Customer Email : {customer_email}
+    Issue          : {issue}
+
+    You have full context from previous agents via context:
+    - Task 1 identified the ticket category and summarized the core issue
+    - Task 2 determined the urgency and whether human escalation is needed
+    - Task 3 generated a detailed step-by-step solution with resolution time
+
+    Using the customer's issue and all previous agent outputs, draft a 
+    warm, empathetic, and professional email reply to be sent directly 
+    to the customer.
+
+    Rules you must strictly follow:
+    - email_subject must directly reflect the customer's specific issue — never generic
+    - email_body must strictly follow this 5-part structure:
+        1. Warm personalized greeting addressing the customer by their name
+        2. Empathetic acknowledgement — make the customer feel heard and valued
+        3. Clear solution explanation in simple non-technical language drawn from Task 3 output
+        4. Resolution time — clearly state when the issue will be fully resolved from Task 3 output
+        5. Professional closing with encouragement to reply if issue persists
+    - sent_to must be the customer's exact email address
+    - If escalate_to_human is True from Task 2, inform the customer that
+      a senior support specialist will personally reach out within 1 hour
+    - Tone must always be warm, human, and genuine — never robotic or cold
+  expected_output: >
+    A structured JSON output with the following fields:
+    - email_subject: a specific and relevant subject line directly referencing the customer's issue
+    - email_body: a complete professional email strictly following the 5-part structure above
+    - sent_to: the customer's exact email address
+  agent: email_drafter_agent
