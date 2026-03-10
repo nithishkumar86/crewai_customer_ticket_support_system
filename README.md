@@ -136,16 +136,34 @@ source .venv/bin/activate   # Mac/Linux
 ```
 
 4. Install Dependencies
+```
+
 uv add -r requirements.txt
 
-5. Configure .env File
+```
+
+6. Configure .env File
+```
+
 DEEPSEEK_API_KEY=your_deepseek_api_key
 SENDER_EMAIL=your_gmail@gmail.com
 SENDER_PASSWORD=your_gmail_app_password
 
-6. Run the Project
-Terminal 1: uvicorn api:app --reload
-Terminal 2: streamlit run app.py
+```
+
+8. Run the Project
+
+## Terminal 1: 
+```
+
+uvicorn api:app --reload
+
+```
+## Terminal 2:
+```
+streamlit run app.py
+
+```
 
 ---
 
@@ -180,5 +198,6 @@ function copyAll() {
 
 </body>
 </html>
+
 
 
